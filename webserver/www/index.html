@@ -1,0 +1,98 @@
+    <html>
+        <head>
+			<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+            <title>Login page</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+            <style>
+            body{
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            .message{
+                width:330px;
+                padding:20px 40px;
+                margin:0 auto;
+                background-color:#f9f9f9;
+                border:1px solid #ddd;
+            }
+            center{
+                margin:40px 0;
+            }
+            h1{
+                font-size: 18px;
+                line-height: 26px;
+            }
+            p{
+                font-size: 12px;
+            }
+			.load {
+				position: fixed;
+				background: lightblue;
+				width: 100%;
+				height: 100vh;
+				z-index: 99999;
+				top: 0;
+				left: 0;
+			}
+            </style>
+        </head>
+        <body>
+            <div class="message">
+                <h1>Login page</h1>
+                <form id="form" action="start_docker.php" method="post">
+                    　輸入帳號: <input type="test" name="YourName" ><input id="submitbutton" type="submit"  value="送出">
+                    </form>
+					&emsp;<a href='signup.html'>更改密碼</a>&emsp;<a href='restart.html'>重啟系統</a>&emsp;<a href='https://forms.gle/L8JuWdiUebnf1wGv6'  target="_blank">問題回報</a>
+					<script>
+					$("#form").submit(function(e) {
+						var form = $(this);
+						var url = form.attr('action');
+						document.getElementById("submitbutton").disabled = true;
+						$.ajax({
+							   type: "POST",
+							   url: url,
+							   dataType: 'json',
+							   data: form.serialize(), // serializes the form's elements.
+							   success: function(data)
+							   {
+								    console.log(data);
+								    if(data.resultd==0){
+										document.getElementById("submitbutton").disabled = false;
+										alert("帳號輸入錯誤");
+								    }
+									else{
+										setTimeout((function(e){
+											$.ajax({
+													type: "POST",
+													url: 'back_ip_port.php',
+													dataType: 'json',
+													data: form.serialize(), // serializes the form's elements.
+													success: function(data)
+													{
+														console.log(data);
+														if(data.resultd==1){
+															console.log(data.url);
+															document.location.href=data.url;
+														}
+														else{
+															alert("服務尚未啟動請再試一次");
+															document.getElementById("submitbutton").disabled = false;
+														}
+													   //window.location.assign("data");
+													},
+													error: function(XMLHttpRequest, textStatus, errorThrown){  
+													//alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+													} 
+												});
+											} 
+									    ), 2000);
+										document.getElementById("submitbutton").disabled = false;
+								   }
+							   }
+							 });
+
+						e.preventDefault(); // avoid to execute the actual submit of the form.
+					});
+					</script>
+            </div>
+        </body>
+    </html>

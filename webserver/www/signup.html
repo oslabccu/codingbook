@@ -1,0 +1,187 @@
+    <html>
+        <head>
+			<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+            <title>Signup page</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+            <style>
+            body{
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            .message{
+                width:330px;
+                padding:20px 40px;
+                margin:0 auto;
+                background-color:#f9f9f9;
+                border:1px solid #ddd;
+            }
+            center{
+                margin:40px 0;
+            }
+            h1{
+                font-size: 18px;
+                line-height: 26px;
+            }
+            p{
+                font-size: 12px;
+            }
+			.load {
+				position: fixed;
+				background: lightblue;
+				width: 100%;
+				height: 100vh;
+				z-index: 99999;
+				top: 0;
+				left: 0;
+			}
+            </style>
+        </head>
+        <body>
+            <div class="message">
+                <h1>Signup page <a href='index.html'>回登入頁面</a></h1>
+                <form id="form" action="test_test.php" method="post">
+                    輸入帳號 : <input id="account" type="text" name="YourName" onChange="checkacc();" required="true"></br>
+					輸入舊的密碼 : <input id="oldpwd" type="password" name="Youroldpwd" required="true" ></br>
+					輸入新的密碼 : <input id="password"  type="password" name="Yourpwd"   onblur="checkpas1();" required="true"></br>
+					再次確認密碼 : <input id="repassword"  type="password" name="Yourpwdcheck"  onChange="checkpas();" required="true"></br>
+					<span class="tipacc" style="color: red;">輸入帳號錯誤</span><br>
+					<span class="tip" style="color: red;">兩次輸入的密碼不一致</span><br>
+					<input id="submitbutton" type="button"  value="送出" onclick="checkpas2();">
+                    </form>
+					<script>
+					var account_check=0;
+					$(".tip").hide();
+					$(".tipacc").hide();
+					function checkpas1(){//當第一個密碼框失去焦點時，觸發checkpas1事件
+						var pas1=document.getElementById("password").value;
+						var pas2=document.getElementById("repassword").value;//獲取兩個密碼框的值
+						if(pas1!=pas2&&pas2!="")//此事件當兩個密碼不相等且第二個密碼是空的時候會顯示錯誤資訊
+							$(".tip").show();
+						else
+							$(".tip").hide();//若兩次輸入的密碼相等且都不為空時，不顯示錯誤資訊。
+					}
+					function checkpas(){//當第一個密碼框失去焦點時，觸發checkpas2件
+						var pas1=document.getElementById("password").value;
+						var pas2=document.getElementById("repassword").value;//獲取兩個密碼框的值
+						if(pas1!=pas2){
+							$(".tip").show();//當兩個密碼不相等時則顯示錯誤資訊
+						}else{
+							$(".tip").hide();
+						}
+					}
+					function checkpas2(){//點選提交按鈕時，觸發checkpas2事件，會進行彈框提醒以防無視錯誤資訊提交
+						var pas3=document.getElementById("password").value;
+						var pas4=document.getElementById("repassword").value;
+						if(account_check==0){
+							alert("輸入帳號錯誤！");
+							return false;
+						}
+						if(pas3!=pas4){
+							alert("兩次輸入的密碼不一致！");
+							return false;
+						}
+						var acc1=document.getElementById("account").value;
+						var oldpwd=document.getElementById("oldpwd").value;
+						console.log(oldpwd);
+						$.ajax({
+							   type: "POST",
+							   url: "insertpwd.php",
+							   dataType: 'json',
+							   data: {account : acc1,pwd :pas3,oldpwd :oldpwd,}, 
+							   success: function(data)
+							   {
+									console.log(data);
+									if(data.resultd==0){
+										alert("密碼更改失敗，請再試一次");
+									}
+									else if(data.resultd==-1){
+										alert("帳號密碼錯誤");
+									}
+									else{
+										alert("密碼更改成功");
+										document.location.href="index.html";
+								   }
+							   },
+							   error: function(XMLHttpRequest, textStatus, errorThrown){  
+									alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+								} 
+						});
+					}
+					function checkacc(){//當第一個密碼框失去焦點時，觸發checkpas2件
+					var pas1=document.getElementById("account").value;
+					console.log(pas1);
+					$.ajax({
+							   type: "POST",
+							   url: "checkaccount.php",
+							   dataType: 'json',
+							   data: {YourName : pas1,}, 
+							   success: function(data)
+							   {
+									console.log(data);
+								    if(data.resultd==0){
+										console.log("帳號輸入錯誤");
+										$(".tipacc").show();
+										account_check=0;
+								    }
+									else{
+										console.log("帳號輸入正確");
+										$(".tipacc").hide();
+										account_check=1;
+								   }
+							   },
+							   error: function(XMLHttpRequest, textStatus, errorThrown){  
+									alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+								} 
+							});
+					}
+					/*$("#form").click(function(e) {
+						var form = $(this);
+						var url = form.attr('action');
+						document.getElementById("submitbutton").disabled = true;
+						$.ajax({
+							   type: "POST",
+							   url: url,
+							   dataType: 'json',
+							   data: form.serialize(), // serializes the form's elements.
+							   success: function(data)
+							   {
+								    console.log(data);
+								    if(data.resultd==0){
+										document.getElementById("submitbutton").disabled = false;
+										alert("帳號輸入錯誤");
+								    }
+									else{
+										setTimeout((function(e){
+											$.ajax({
+													type: "POST",
+													url: 'back_ip&port.php',
+													dataType: 'json',
+													data: form.serialize(), // serializes the form's elements.
+													success: function(data)
+													{
+														console.log(data);
+														if(data.resultd==1){
+															console.log(data.url);
+															document.location.href=data.url;
+														}
+														else{
+															alert("服務尚未啟動請再試一次");
+															document.getElementById("submitbutton").disabled = false;
+														}
+													   //window.location.assign("data");
+													},
+													error: function(XMLHttpRequest, textStatus, errorThrown){  
+													//alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+													} 
+												});
+											} 
+									    ), 3000);
+								   }
+							   }
+							 });
+
+						e.preventDefault(); // avoid to execute the actual submit of the form.
+					});*/
+					</script>
+            </div>
+        </body>
+    </html>

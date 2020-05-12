@@ -1,0 +1,83 @@
+    <html>
+        <head>
+			<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+            <title>Restart page</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+            <style>
+            body{
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            .message{
+                width:330px;
+                padding:20px 40px;
+                margin:0 auto;
+                background-color:#f9f9f9;
+                border:1px solid #ddd;
+            }
+            center{
+                margin:40px 0;
+            }
+            h1{
+                font-size: 18px;
+                line-height: 26px;
+            }
+            p{
+                font-size: 12px;
+            }
+			.load {
+				position: fixed;
+				background: lightblue;
+				width: 100%;
+				height: 100vh;
+				z-index: 99999;
+				top: 0;
+				left: 0;
+			}
+            </style>
+        </head>
+        <body>
+            <div class="message">
+                <h1>Restart page <a href='index.html'>回登入頁面</a></h1>
+                <form id="form" action="test_test.php" method="post">
+                    輸入帳號 : <input id="account" type="text" name="YourName" required="true" ></br>
+					輸入密碼 : <input id="password"  type="password" name="Yourpwd"    required="true"></br>
+					<input id="submitbutton" type="button"  value="送出" onclick="checkpas2();">
+                    </form>
+					<script>
+					function checkpas2(){//點選提交按鈕時，觸發checkpas2事件，會進行彈框提醒以防無視錯誤資訊提交
+						var pas3=document.getElementById("password").value;
+						var acc1=document.getElementById("account").value;
+						if(pas3==""||acc1==""){
+							alert("未輸入帳號與密碼！");
+							return false;
+						}
+						$.ajax({
+							   type: "POST",
+							   url: "restartsystem.php",
+							   dataType: 'json',
+							   data: {account : acc1,pwd :pas3,}, 
+							   success: function(data)
+							   {
+									console.log(data);
+									if(data.resultd==0){
+										alert("重新啟動失敗，請再試一次");
+									}
+									else if(data.resultd==-1){
+										alert("帳號密碼錯誤");
+									}
+									else{
+										alert("重新啟動成功，請重新登入");
+										document.location.href="index.html";
+								   }
+							   },
+							   error: function(XMLHttpRequest, textStatus, errorThrown){  
+									alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+								} 
+						});
+					}
+					
+					
+					</script>
+            </div>
+        </body>
+    </html>
