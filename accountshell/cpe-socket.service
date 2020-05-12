@@ -1,0 +1,10 @@
+[Unit]
+Description=open cpe socket server
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/sp/socket_server.py
+Restart=1
+
+[Install]
+WantedBy=multi-user.target
